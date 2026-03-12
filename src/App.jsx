@@ -20,11 +20,16 @@ const C = {
 };
 
 const SKILLS = [
-  { id:"reading",  glyph:"𝄞", name:"Lecture",  accent:C.blue3,  accentLight:C.blue1,  image:"https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800", desc:"Développe ta fluidité de lecture et ta compréhension des textes." },
-  { id:"math",     glyph:"∑", name:"Calcul",    accent:C.green3, accentLight:C.green1, image:"https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=800", desc:"Renforce tes bases arithmétiques et ta logique mathématique." },
-  { id:"writing",  glyph:"⌘", name:"Écriture",  accent:C.blue2,  accentLight:C.blue1,  image:"https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800", desc:"Affine ton expression écrite et enrichis ton vocabulaire." },
-  { id:"memory",   glyph:"◈", name:"Mémoire",   accent:C.green2, accentLight:C.green1, image:"https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=800", desc:"Entraîne ta mémoire de travail et ta capacité de rétention." },
-  { id:"patterns", glyph:"✦", name:"Logique",   accent:C.gold,   accentLight:"#f0ebd0", image:"https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800", desc:"Développe ta pensée analytique et la reconnaissance de schémas." },
+  { id:"helicoptere", glyph:"🚁", name:"helicoptère",  accent:C.blue3,  accentLight:C.blue1,  image:"/img/image.png", desc:"Ne vous contentez pas d'un point de vue, changez de perspective !" },
+  { id:"expedition",     glyph:"⛰️", name:"expedition",    accent:C.green3, accentLight:C.green1, image:"/img/image.jpg", desc:"Un pas après l'autre, on finit par toucher le ciel !" },
+  { id:"plongée",  glyph:"🤿", name:"plongée",  accent:C.blue2,  accentLight:C.blue1,  image:"/img/plong.jpg", desc:"70% de la planète n'attend que vous !" },
+  { id:"vtt",   glyph:"🚲", name:"vtt",   accent:C.green2, accentLight:C.green1, image:"/img/en-tete6.jpg", desc:"Cardio: 100% ! Sourire: 100% ! Propreté: 0%..." },
+  { id:"aquatique", glyph:"🌊", name:"aquatique",   accent:C.gold,   accentLight:"#f0ebd0", image:"/img/sortie-bateaux.jpg", desc:"Repirez, contemplez, explorez: l'océan vous ouvre ses portes !" },
+  {id:"parapante", glyph:"🪂", name:"parapante",  accent:C.blue3,  accentLight:C.blue1,  image:"/img/parapante.jpg", desc:"Regardez l'horizon droit dans les yeux !" },
+  {id:"cannyoning", glyph:"🏞️", name:"cannyoning",  accent:C.blue3,  accentLight:C.blue1,  image:"/img/reunion-canoyning-2.jpg", desc:"Suivez le fil de l'eau, elle connaît le chemin le plus spectaculaire !" },
+  {id:"musée", glyph:"🏛️", name:"musée",  accent:C.blue3,  accentLight:C.blue1,  image:"/img/musee.jpg", desc:"Un voyage immobile à travers les siècles de La Réunion !" },
+  {id:"commerce, artisanal",  glyph:"🛒", name:"commerce, artisanal",  accent:C.blue3,  accentLight:C.blue1,  image:"/img/marché.jpg", desc:"Retrouvez la vraie saveur des saisons !" },
+  {id:"restauration",  glyph:"🍛", name:"activité culinaire",  accent:C.blue3,  accentLight:C.blue1,  image:"/img/Screenshot_from_2026-03-12_15-26-15.jpg", desc:"La cuisine est un langage que tout le monde comprend non ?" },
 ];
 
 const AMOUNTS = [2, 5, 10, 20];
@@ -198,10 +203,6 @@ function DetailPage({ skill, onBack, bp }) {
               <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:descSize, color:C.text2, lineHeight:1.75 }}>{skill.desc}</p>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <div style={{ height:3, flex:1, borderRadius:4, background:C.borderLight }}>
-                <div style={{ height:"100%", width:"45%", borderRadius:4, background:`linear-gradient(90deg,${skill.accentLight},${skill.accent})` }} />
-              </div>
-              <span style={{ fontSize:bp==="xl"?13:11, color:C.text3, fontFamily:"'Cormorant Garamond',serif", letterSpacing:"0.1em" }}>Niveau 3</span>
             </div>
           </div>
         </div>
@@ -246,12 +247,7 @@ function SkillCard({ skill, idx, offset, onShift, onOpen, bp }) {
           <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:cl, letterSpacing:"0.2em", color:C.text3, textTransform:"uppercase", marginBottom:7 }}>Discipline</p>
           <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:cn, fontWeight:600, color:C.text1, letterSpacing:"0.03em" }}>{skill.name}</p>
         </div>
-        <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:cs, color:C.text3, letterSpacing:"0.1em" }}>Défi · Niveau {idx+2}</p>
         <div style={{ width:"100%" }}>
-          <div style={{ width:"100%", height:4, borderRadius:4, background:C.blue1, overflow:"hidden" }}>
-            <div style={{ height:"100%", width:`${36+idx*12}%`, borderRadius:4, background:`linear-gradient(90deg,${skill.accentLight},${skill.accent})` }} />
-          </div>
-          <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:cl-1, color:C.text3, textAlign:"center", marginTop:7, letterSpacing:"0.1em" }}>Niveau {idx+2}</p>
         </div>
         {offset===0 && (
           <button
@@ -328,12 +324,12 @@ export default function App() {
           <>
             {/* Ornement */}
             <div className="fu" style={{ position:"relative", zIndex:10, marginTop:mt, textAlign:"center" }}>
-              <p style={{ fontSize:bp==="xl"?11:9, letterSpacing:"0.40em", color:C.text3, textTransform:"uppercase", marginBottom:8 }}>✦ &nbsp; Collection &nbsp; ✦</p>
+              <p style={{ fontSize:bp==="xl"?11:9, letterSpacing:"0.40em", color:C.text3, textTransform:"uppercase", marginBottom:8 }}>✦ &nbsp; Epitech &nbsp; ✦</p>
               <div style={{ height:1, width:bp==="xl"?260:200, margin:"0 auto", background:`linear-gradient(90deg,transparent,${C.borderMid},transparent)` }} />
             </div>
 
             {/* Titre */}
-            <h1 className="fu" style={{ position:"relative", zIndex:10, fontSize:`clamp(${tMin}px,7.5vw,${tMax}px)`, fontWeight:600, fontStyle:"italic", color:C.text1, letterSpacing:"0.04em", marginTop:bp==="xl"?20:16, marginBottom:10, textShadow:`0 2px 32px rgba(91,156,189,.14)`, animationDelay:".1s", textAlign:"center", padding:"0 20px" }}>Level Up</h1>
+            <h1 className="fu" style={{ position:"relative", zIndex:10, fontSize:`clamp(${tMin}px,7.5vw,${tMax}px)`, fontWeight:600, fontStyle:"italic", color:C.text1, letterSpacing:"0.04em", marginTop:bp==="xl"?20:16, marginBottom:10, textShadow:`0 2px 32px rgba(91,156,189,.14)`, animationDelay:".1s", textAlign:"center", padding:"0 20px" }}>Starf</h1>
 
             {/* Sous-titre */}
             <p className="fu" style={{ position:"relative", zIndex:10, fontSize:subFs, letterSpacing:"0.30em", color:C.text3, textTransform:"uppercase", marginBottom:mb, animationDelay:".18s", textAlign:"center" }}>Excellence &amp; Raffinement</p>
