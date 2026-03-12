@@ -1,16 +1,85 @@
-# React + Vite
+# Level Up — MACE
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Application web React pour l'association **MACE**, permettant aux utilisateurs d'explorer cinq disciplines d'apprentissage dans un carousel 3D interactif et de soutenir l'association via un système de dons.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Aperçu
 
-## React Compiler
+L'application présente cinq disciplines :
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Glyph | Discipline | Description |
+|-------|-----------|-------------|
+| 𝄞 | **Lecture** | Fluidité de lecture et compréhension de textes |
+| ∑ | **Calcul** | Bases arithmétiques et logique mathématique |
+| ⌘ | **Écriture** | Expression écrite et enrichissement du vocabulaire |
+| ◈ | **Mémoire** | Mémoire de travail et capacité de rétention |
+| ✦ | **Logique** | Pensée analytique et reconnaissance de schémas |
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Fonctionnalités
+
+- **Carousel 3D** : navigation par clic sur les chevrons, glisser-déposer souris ou swipe tactile
+- **Page détail** : image, description, barre de progression et niveau affiché par discipline
+- **Bloc de don** : choix parmi des montants prédéfinis (2 €, 5 €, 10 €, 20 €) ou saisie libre, avec confirmation animée
+- **Responsive complet** : 5 breakpoints (xs < 600 px · sm 600–1023 px · md 1024–1279 px · lg 1280–1599 px · xl ≥ 1600 px)
+
+---
+
+## Stack technique
+
+| Outil | Version |
+|-------|---------|
+| React | ^19.2.0 |
+| Vite | ^7.3.1 |
+| ESLint | ^9.39.1 |
+| Police | Cormorant Garamond (Google Fonts) |
+
+Aucune dépendance CSS externe — tous les styles sont écrits en inline JS.
+
+---
+
+## Installation et lancement
+
+```bash
+# Installer les dépendances
+npm install
+
+# Lancer le serveur de développement
+npm run dev
+
+Le serveur de développement tourne par défaut sur [http://localhost:5173](http://localhost:5173).
+
+---
+
+## Structure du projet
+
+```
+Hackaton-x-MACE/
+├── public/               # Assets statiques
+├── src/
+│   ├── App.jsx           # Composant racine (carousel, page détail, dons)
+│   ├── App.css           # Styles globaux complémentaires
+│   ├── index.css         # Reset / variables CSS
+│   └── main.jsx          # Point d'entrée React
+├── index.html            # Template HTML
+├── vite.config.js        # Configuration Vite
+└── eslint.config.js      # Configuration ESLint
+```
+
+### Composants internes (`App.jsx`)
+
+| Composant | Rôle |
+|-----------|------|
+| `useBreakpoint()` | Hook — renvoie le breakpoint actif selon `window.innerWidth` |
+| `SkillCard` | Carte du carousel avec perspective 3D, barre de progression et bouton « Commencer » |
+| `DetailPage` | Page de détail d'une discipline (image, description, progression) |
+| `TipBlock` | Sélecteur de montant et formulaire de don avec confirmation |
+| `App` | Orchestre le carousel, la navigation et l'état global |
+
+---
+
+## Licence
+
+Voir [LICENSE](./LICENSE).

@@ -109,8 +109,8 @@ function TipBlock({ skill, bp }) {
       ) : (
         <>
           <div style={{ marginBottom:bp==="xl"?28:22 }}>
-            <p style={{ fontSize:10, letterSpacing:"0.22em", color:C.text3, textTransform:"uppercase", marginBottom:7 }}>Soutenir l'association</p>
-            <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:h3, fontWeight:600, color:C.text1, marginBottom:12 }}>Laisser un pourboire</h3>
+            <p style={{ fontSize:10, letterSpacing:"0.22em", color:C.text3, textTransform:"uppercase", marginBottom:7 }}>Laissez un don</p>
+            <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:h3, fontWeight:600, color:C.text1, marginBottom:12 }}>Soutenir l'association</h3>
             <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:bp==="xl"?16:bp==="xs"?13:14, color:C.text2, lineHeight:1.8 }}>Votre soutien nous permet de continuer notre travail. Choisissez un montant ou entrez le vôtre.</p>
           </div>
 
@@ -197,7 +197,6 @@ function DetailPage({ skill, onBack, bp }) {
           </div>
           <div style={{ padding:isXs?"16px 20px 24px":bp==="xl"?"40px 44px 40px 16px":"28px 32px 28px 14px", display:"flex", flexDirection:"column", justifyContent:"center", gap:bp==="xl"?18:12 }}>
             <div>
-              <p style={{ fontSize:10, letterSpacing:"0.22em", color:C.text3, textTransform:"uppercase", marginBottom:8 }}>Discipline</p>
               <h2 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:h2size, fontWeight:600, fontStyle:"italic", color:C.text1, marginBottom:12 }}>{skill.name}</h2>
               <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:descSize, color:C.text2, lineHeight:1.75 }}>{skill.desc}</p>
             </div>
@@ -243,7 +242,6 @@ function SkillCard({ skill, idx, offset, onShift, onOpen, bp }) {
         <div style={{ position:"absolute", top:0, left:"18%", right:"18%", height:4, borderRadius:"0 0 6px 6px", background:`linear-gradient(90deg,${skill.accentLight},${skill.accent},${skill.accentLight})` }} />
         <div style={{ width:gs, height:gs, borderRadius:"50%", background:`linear-gradient(135deg,${skill.accentLight},${C.bgAlt})`, border:`1px solid ${skill.accent}28`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:gf, color:skill.accent, fontFamily:"serif", boxShadow:`0 4px 20px ${skill.accent}22` }}>{skill.glyph}</div>
         <div style={{ textAlign:"center" }}>
-          <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:cl, letterSpacing:"0.2em", color:C.text3, textTransform:"uppercase", marginBottom:7 }}>Discipline</p>
           <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:cn, fontWeight:600, color:C.text1, letterSpacing:"0.03em" }}>{skill.name}</p>
         </div>
         <div style={{ width:"100%" }}>
@@ -323,15 +321,15 @@ export default function App() {
           <>
             {/* Ornement */}
             <div className="fu" style={{ position:"relative", zIndex:10, marginTop:mt, textAlign:"center" }}>
-              <p style={{ fontSize:bp==="xl"?11:9, letterSpacing:"0.40em", color:C.text3, textTransform:"uppercase", marginBottom:8 }}>✦ &nbsp; Epitech &nbsp; ✦</p>
+              <p style={{ fontSize:bp==="xl"?11:9, letterSpacing:"0.40em", color:C.text3, textTransform:"uppercase", marginBottom:8 }}>✦ &nbsp;Découvrez la Réunion !&nbsp; ✦</p>
               <div style={{ height:1, width:bp==="xl"?260:200, margin:"0 auto", background:`linear-gradient(90deg,transparent,${C.borderMid},transparent)` }} />
             </div>
 
             {/* Titre */}
-            <h1 className="fu" style={{ position:"relative", zIndex:10, fontSize:`clamp(${tMin}px,7.5vw,${tMax}px)`, fontWeight:600, fontStyle:"italic", color:C.text1, letterSpacing:"0.04em", marginTop:bp==="xl"?20:16, marginBottom:10, textShadow:`0 2px 32px rgba(91,156,189,.14)`, animationDelay:".1s", textAlign:"center", padding:"0 20px" }}>Starf</h1>
+            <h1 className="fu" style={{ position:"relative", zIndex:10, fontSize:`clamp(${tMin}px,7.5vw,${tMax}px)`, fontWeight:600, fontStyle:"italic", color:C.text1, letterSpacing:"0.04em", marginTop:bp==="xl"?20:16, marginBottom:10, textShadow:`0 2px 32px rgba(91,156,189,.14)`, animationDelay:".1s", textAlign:"center", padding:"0 20px" }}>ImpactTrip</h1>
 
             {/* Sous-titre */}
-            <p className="fu" style={{ position:"relative", zIndex:10, fontSize:subFs, letterSpacing:"0.30em", color:C.text3, textTransform:"uppercase", marginBottom:mb, animationDelay:".18s", textAlign:"center" }}>Excellence &amp; Raffinement</p>
+            <p className="fu" style={{ position:"relative", zIndex:10, fontSize:subFs, letterSpacing:"0.30em", color:C.text3, textTransform:"uppercase", marginTop:30, marginBottom:mb, animationDelay:".18s", textAlign:"center" }}>Nos différentes activités !</p>
 
             {/* Carousel */}
             <div style={{ position:"relative", width:"100%", zIndex:10, height:carH }}>
@@ -362,7 +360,7 @@ export default function App() {
             </div>
 
             {/* Hint */}
-            <div className="fu" style={{ position:"relative", zIndex:10, textAlign:"center", marginTop:bp==="xl"?36:bp==="xs"?16:28, marginBottom:bp==="xl"?48:bp==="xs"?24:36, animationDelay:".25s" }}>
+            <div className="fu" style={{ position:"relative", zIndex:10, textAlign:"center", marginTop:bp==="xl"?0:bp==="xs"?16:28, marginBottom:bp==="xl"?48:bp==="xs"?24:36, animationDelay:".25s" }}>
               <div style={{ height:1, width:bp==="xl"?180:140, margin:"0 auto 10px", background:`linear-gradient(90deg,transparent,${C.borderMid},transparent)` }} />
               <p style={{ fontSize:bp==="xl"?10:9, letterSpacing:"0.32em", color:C.text3, textTransform:"uppercase" }}>Glisser pour naviguer</p>
             </div>
