@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const C = {
   bg:          "#f8f9fb",
@@ -17,12 +17,14 @@ const C = {
   text2:       "#607080",
   text3:       "#99aab8",
   shadow:      "rgba(90,156,189,0.14)",
+  sand:        "#d8b987",
+  forest:      "#375a4a",
 };
 
 const SKILLS = [
   { id:"Hélicoptère", glyph:"🚁", name:"Hélicoptère",  accent:C.blue3,  accentLight:C.blue1,  image:"/img/image.png", desc:"Découvrez l’île autrement grâce à nos tours en hélicoptère. Survolez des paysages spectaculaires, admirez les lagons, les falaises et les sites naturels emblématiques depuis le ciel. Une expérience unique qui vous offre une vue panoramique inoubliable et vous permet de découvrir la beauté du territoire sous un angle exceptionnel !" },
   { id:"Expeditions",     glyph:"⛰️", name:"Expeditions",    accent:C.green3, accentLight:C.green1, image:"/img/image.jpg", desc:"Partez à l’aventure avec nos expéditions à La Réunion et explorez les merveilles cachées de l’île. Découvrez les impressionnants tunnels de lave, traversez des paysages volcaniques uniques et plongez au cœur d’une nature sauvage et préservée. Encadrées par des guides passionnés, ces explorations offrent une expérience immersive et authentique pour les amoureux de découverte et d’aventure !" },
-  { id:"plongée",  glyph:"🤿", name:"plongée",  accent:C.blue2,  accentLight:C.blue1,  image:"/img/plong.jpg", desc:"Explorez les fonds marins exceptionnels de La Réunion lors d’une sortie en plongée. Accompagné de moniteurs certifiés, découvrez un monde sous-marin riche en coraux, poissons tropicaux et paysages marins spectaculaires. Une expérience unique pour observer la biodiversité de l’océan Indien et vivre un moment inoubliable sous l’eau !" },
+  { id:"plongée",  glyph:"🤿", name:"Plongée",  accent:C.blue2,  accentLight:C.blue1,  image:"/img/plong.jpg", desc:"Explorez les fonds marins exceptionnels de La Réunion lors d’une sortie en plongée. Accompagné de moniteurs certifiés, découvrez un monde sous-marin riche en coraux, poissons tropicaux et paysages marins spectaculaires. Une expérience unique pour observer la biodiversité de l’océan Indien et vivre un moment inoubliable sous l’eau !" },
   { id:"VTT",   glyph:"🚲", name:"VTT",   accent:C.green2, accentLight:C.green1, image:"/img/en-tete6.jpg", desc:"Partez à l’aventure en VTT à La Réunion et découvrez l’île à travers ses sentiers spectaculaires. Entre forêts, montagnes et panoramas sur l’océan, profitez d’itinéraires adaptés à tous les niveaux pour explorer des paysages uniques. Une activité idéale pour les amateurs de sport, de nature et de sensations en plein air !" },
   { id:"Aquatique", glyph:"🌊", name:"Aquatique",   accent:C.gold,   accentLight:"#f0ebd0", image:"/img/sortie-bateaux.jpg", desc:"Embarquez pour une sortie en bateau au large de La Réunion et partez à la découverte de la faune marine. Selon la saison, observez les majestueuses baleines, les dauphins ou admirez simplement les magnifiques paysages de l’île depuis l’océan. Une expérience unique pour profiter de la mer et vivre un moment inoubliable au cœur de l’océan Indien !" },
   {id:"Parapente", glyph:"🪂", name:"Parapente",  accent:C.blue3,  accentLight:C.blue1,  image:"/img/parapante.jpg", desc:"Prenez de la hauteur et découvrez La Réunion autrement avec une sortie en parapente. Accompagné d’un moniteur expérimenté, survolez les paysages spectaculaires de l’île, entre océan, falaises et montagnes. Une expérience aérienne unique qui allie sensations fortes et panoramas à couper le souffle !" },
@@ -32,6 +34,27 @@ const SKILLS = [
 ];
 
 const AMOUNTS = [2, 5, 10, 20];
+
+const GOAL = 600;
+const INITIAL_DONATIONS = [
+  { id: 1, skillId: "plongée", skillName: "plongée", amount: 25, at: "2026-03-11T14:10:00.000Z" },
+  { id: 2, skillId: "Canyoning", skillName: "Canyoning", amount: 18, at: "2026-03-12T09:30:00.000Z" },
+  { id: 3, skillId: "Commerce artisanal", skillName: "Commerce artisanal", amount: 30, at: "2026-03-12T11:05:00.000Z" },
+];
+
+function euros(value) {
+  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
+}
+
+function timeSince(at) {
+  const ms = Date.now() - new Date(at).getTime();
+  const minutes = Math.round(ms / 60000);
+  if (minutes < 60) return `il y a ${minutes || 1} min`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `il y a ${hours} h`;
+  const days = Math.round(hours / 24);
+  return `il y a ${days} j`;
+}
 
 // ─── Breakpoints ──────────────────────────────────────────────────────────────
 // xl  ≥ 1600   (1920×1080, grands écrans)
@@ -81,7 +104,7 @@ const S = {
 function v(key, bp) { return S[key][bp]; }
 
 // ─── TipBlock ─────────────────────────────────────────────────────────────────
-function TipBlock({ skill, bp }) {
+function TipBlock({ skill, bp, onDonate = () => {} }) {
   const [selected, setSelected] = useState(5);
   const [custom,   setCustom]   = useState("");
   const [done,     setDone]     = useState(false);
@@ -141,7 +164,7 @@ function TipBlock({ skill, bp }) {
 
           <div style={{ height:1, background:`linear-gradient(90deg,transparent,${C.borderLight},transparent)`, marginBottom:bp==="xl"?28:22 }} />
 
-          <button onClick={() => { if(finalAmount>0) setDone(true); }} disabled={finalAmount<=0}
+          <button onClick={() => { if (finalAmount > 0) { onDonate(skill, finalAmount); setDone(true); setCustom(""); setSelected(5); } }} disabled={finalAmount<=0}
             style={{ width:"100%", padding:bp==="xl"?"18px 0":"15px 0", borderRadius:14, border:"none", background:finalAmount>0?`linear-gradient(135deg,${skill.accentLight},${skill.accent})`:C.borderLight, color:finalAmount>0?"#fff":C.text3, fontFamily:"'Cormorant Garamond',serif", fontSize:bp==="xl"?19:16, letterSpacing:"0.16em", cursor:finalAmount>0?"pointer":"not-allowed", transition:"all .2s", boxShadow:finalAmount>0?`0 6px 24px ${skill.accent}33`:"none" }}
             onMouseEnter={e=>{ if(finalAmount>0) e.currentTarget.style.boxShadow=`0 10px 36px ${skill.accent}55`; }}
             onMouseLeave={e=>{ if(finalAmount>0) e.currentTarget.style.boxShadow=`0 6px 24px ${skill.accent}33`; }}
@@ -155,7 +178,7 @@ function TipBlock({ skill, bp }) {
 }
 
 // ─── Page détail ──────────────────────────────────────────────────────────────
-function DetailPage({ skill, onBack, bp }) {
+function DetailPage({ skill, onBack, bp, onDonate }) {
   const maxW    = v("detailW", bp);
   const px      = bp === "xs" ? "0 16px" : bp === "xl" ? "0 40px" : "0 28px";
   const imgW    = v("infoImg", bp);
@@ -206,7 +229,7 @@ function DetailPage({ skill, onBack, bp }) {
         </div>
 
         {/* Pourboire */}
-        <TipBlock skill={skill} bp={bp} />
+        <TipBlock skill={skill} bp={bp} onDonate={onDonate} />
       </div>
     </div>
   );
@@ -259,6 +282,94 @@ function SkillCard({ skill, idx, offset, onShift, onOpen, bp }) {
   );
 }
 
+const navPill = active => ({
+  borderRadius: 999,
+  border: `1px solid ${active ? C.blue3 : "transparent"}`,
+  padding: "10px 16px",
+  fontSize: 13,
+  letterSpacing: "0.18em",
+  textTransform: "uppercase",
+  fontWeight: 700,
+  cursor: "pointer",
+  background: active ? C.blue3 : "rgba(255,255,255,0.8)",
+  color: active ? "#fff" : C.text3,
+  transition: "all .2s",
+});
+
+function TopNav({ currentPage, total, goHome, goActivities, goFund }) {
+  return (
+    <div style={{ position: "relative", zIndex: 10, width: "min(1180px, calc(100% - 32px))", margin: "0 auto", padding: "30px 0 0", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      <button onClick={goHome} style={{ background: "transparent", border: "none", padding: 0, fontFamily: "'Cormorant Garamond',serif", fontSize: 32, fontStyle: "italic", letterSpacing: "0.08em", color: C.text1, cursor: "pointer" }}>ImpactTrip</button>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <button style={navPill(currentPage === "home")} onClick={goHome}>Accueil</button>
+        <button style={navPill(currentPage === "activities")} onClick={goActivities}>Activites</button>
+        <button style={navPill(currentPage === "fund")} onClick={goFund}>Cagnotte</button>
+      </div>
+    </div>
+  );
+}
+
+function HomeIntro({ bp, total, progress, goToActivities, goToFund }) {
+  const compact = bp === "xs";
+  return (
+    <div style={{ position: "relative", zIndex: 8, width: "min(940px, calc(100% - 32px))", margin: compact ? "42px auto 52px" : "72px auto 84px", padding: compact ? "34px 24px" : "54px 64px", borderRadius: 32, background: C.bgCard, boxShadow: "0 30px 80px rgba(91,156,189,0.18)", textAlign: "center" }}>
+      <div style={{ maxWidth: 760, margin: "0 auto" }}>
+        <p style={{ fontSize: 12, letterSpacing: "0.32em", textTransform: "uppercase", color: C.text3 }}>Page d'accueil</p>
+        <h2 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: compact ? 42 : 62, fontStyle: "italic", color: C.text1, marginTop: 14, marginBottom: 18, lineHeight: 1.02 }}>
+          Impact Trip, une façon de découvrir La Réunion avec une dimension solidaire.
+        </h2>
+        <p style={{ color: C.text2, lineHeight: 1.8, fontSize: compact ? 17 : 20 }}>
+          Impact Trip propose des activités touristiques, sportives et culturelles pour faire découvrir l'île autrement, tout en reliant chaque expérience à une dynamique de don.
+        </p>
+        <p style={{ color: C.text2, lineHeight: 1.8, fontSize: compact ? 16 : 18, marginTop: 14 }}>
+          Le visiteur peut explorer les activités, vivre une expérience, puis contribuer à une cagnotte solidaire qui évolue au fil des donations.
+        </p>
+        <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", marginTop: 28 }}>
+          <button onClick={goToActivities} style={{ borderRadius: 16, padding: "12px 20px", border: "none", background: C.blue2, color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>Explorer les activités</button>
+          <button onClick={goToFund} style={{ borderRadius: 16, padding: "12px 20px", border: `1px solid ${C.borderLight}`, background: "transparent", color: C.text2, fontWeight: 700, cursor: "pointer", fontSize: 14 }}>Voir la cagnotte</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FundPage({ bp, total, progress, donations }) {
+  const compact = bp === "xs";
+
+  return (
+    <div style={{ position: "relative", zIndex: 8, width: "min(1180px, calc(100% - 32px))", margin: "32px auto 80px", padding: compact ? "22px" : "34px", borderRadius: 32, background: C.bgCard, boxShadow: "0 24px 70px rgba(38,74,64,0.14)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: compact ? "1fr" : "1.05fr .95fr", gap: 20, alignItems: "stretch" }}>
+        <div>
+          <p style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.32em", textTransform: "uppercase", color: C.text2 }}>Cagnotte en direct</p>
+          <h2 style={{ margin: "12px 0 14px", fontFamily: "'Cormorant Garamond',serif", fontSize: compact ? 46 : 58, lineHeight: 1, color: C.text1 }}>Chaque don depuis les activités fait monter ce total.</h2>
+          <p style={{ color: C.text1, lineHeight: 1.65, fontSize: compact ? 17 : 20, maxWidth: 560 }}>Le montant se met à jour en direct à chaque donation réalisée dans une activité Impact Trip.</p>
+          <div style={{ marginTop: 24, padding: compact ? "18px" : "22px 24px", borderRadius: 24, background: `linear-gradient(135deg, ${C.bgAlt}, #ffffff)`, border: `1px solid ${C.borderLight}` }}>
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: C.text2 }}>Montant collecté</div>
+            <div style={{ marginTop: 10, fontSize: compact ? 42 : 56, lineHeight: 1, fontWeight: 700, color: C.green3 }}>{euros(total)}</div>
+          </div>
+          <div style={{ marginTop: 22, height: 18, borderRadius: 999, background: "rgba(90,156,189,0.14)" }}>
+            <div style={{ width: `${progress}%`, height: "100%", borderRadius: 999, background: `linear-gradient(90deg,${C.green2},${C.blue3})` }} />
+          </div>
+        </div>
+        <div style={{ borderRadius: 24, padding: compact ? "20px" : "24px", background: C.bgAlt, border: `1px solid ${C.borderLight}`, boxShadow: "0 18px 40px rgba(44,61,79,.08)" }}>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: C.text2 }}>Derniers dons</div>
+          <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
+            {donations.slice().reverse().slice(0, 6).map((donation) => (
+              <div key={donation.id} style={{ padding: "14px 16px", borderRadius: 16, background: "rgba(255,255,255,0.92)", border: `1px solid ${C.borderLight}` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, fontWeight: 700, color: C.text1, fontSize: 17 }}>
+                  <span>{donation.skillName}</span>
+                  <span style={{ color: C.green3 }}>{euros(donation.amount)}</span>
+                </div>
+                <div style={{ marginTop: 8, fontSize: 14, color: C.text2, fontWeight: 600 }}>{timeSince(donation.at)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── App ──────────────────────────────────────────────────────────────────────
 export default function App() {
   const bp = useBreakpoint();
@@ -266,16 +377,12 @@ export default function App() {
   const [dragging,  setDragging]  = useState(false);
   const [dragX,     setDragX]     = useState(0);
   const [openSkill, setOpenSkill] = useState(null);
+  const [page, setPage]           = useState("home");
+  const [donations, setDonations] = useState(INITIAL_DONATIONS);
 
   const dragStart = x => { setDragging(true); setDragX(x); };
   const dragMove  = x => { if(!dragging) return; if(Math.abs(dragX-x)>=60){ setSelIdx(p=>dragX-x>0?p+1:p-1); setDragging(false); }};
   const dragEnd   = () => setDragging(false);
-
-  const items = Array.from({length:7},(_,i)=>{
-    const offset=i-3;
-    let di=(selIdx+offset)%SKILLS.length; if(di<0)di+=SKILLS.length;
-    return{...SKILLS[di],originalIdx:di,offset,key:selIdx+offset};
-  });
 
   const carH  = v("carH",  bp);
   const chevW = v("chevW", bp);
@@ -285,6 +392,32 @@ export default function App() {
   const mt    = bp==="xl"?56:bp==="xs"?22:40;
   const mb    = bp==="xl"?60:bp==="xs"?26:44;
   const subFs = bp==="xl"?14:bp==="xs"?10:12;
+
+  const items = Array.from({length:7},(_,i)=>{
+    const offset=i-3;
+    let di=(selIdx+offset)%SKILLS.length; if(di<0)di+=SKILLS.length;
+    return{...SKILLS[di],originalIdx:di,offset,key:selIdx+offset};
+  });
+
+  const total = useMemo(() => donations.reduce((sum, donation) => sum + donation.amount, 0), [donations]);
+  const progress = Math.min(100, Math.round((total / GOAL) * 100));
+
+  const handleDonate = (skill, amount) => {
+    setDonations((current) => [
+      ...current,
+      {
+        id: Date.now(),
+        skillId: skill.id,
+        skillName: skill.name,
+        amount,
+        at: new Date().toISOString(),
+      },
+    ]);
+  };
+
+  const goHome = () => { setPage("home"); setOpenSkill(null); };
+  const goActivities = () => { setPage("activities"); setOpenSkill(null); };
+  const goFund = () => { setPage("fund"); setOpenSkill(null); };
 
   return (
     <>
@@ -313,59 +446,67 @@ export default function App() {
         <div style={{ position:"absolute", top:"-12%", right:"-8%", width:bp==="xl"?800:500, height:bp==="xl"?800:500, borderRadius:"50%", background:`radial-gradient(circle,${C.blue1}48,transparent 68%)`, pointerEvents:"none" }} />
         <div style={{ position:"absolute", bottom:"-14%", left:"-6%", width:bp==="xl"?740:480, height:bp==="xl"?740:480, borderRadius:"50%", background:`radial-gradient(circle,${C.green1}38,transparent 68%)`, pointerEvents:"none" }} />
 
-        {openSkill ? (
-          <div className="si" style={{ width:"100%" }}>
-            <DetailPage skill={openSkill} onBack={() => setOpenSkill(null)} bp={bp} />
-          </div>
-        ) : (
-          <>
-            {/* Ornement */}
-            <div className="fu" style={{ position:"relative", zIndex:10, marginTop:mt, textAlign:"center" }}>
-              <p style={{ fontSize:bp==="xl"?11:9, letterSpacing:"0.40em", color:C.text3, textTransform:"uppercase", marginBottom:8 }}>✦ &nbsp;Découvrez la Réunion !&nbsp; ✦</p>
-              <div style={{ height:1, width:bp==="xl"?260:200, margin:"0 auto", background:`linear-gradient(90deg,transparent,${C.borderMid},transparent)` }} />
+        <TopNav currentPage={page} total={total} goHome={goHome} goActivities={goActivities} goFund={goFund} />
+
+        {page === "home" && <HomeIntro bp={bp} total={total} progress={progress} goToActivities={goActivities} goToFund={goFund} />}
+
+        {page === "activities" && (
+          openSkill ? (
+            <div className="si" style={{ width:"100%" }}>
+              <DetailPage skill={openSkill} onBack={() => setOpenSkill(null)} bp={bp} onDonate={handleDonate} />
             </div>
-
-            {/* Titre */}
-            <h1 className="fu" style={{ position:"relative", zIndex:10, fontSize:`clamp(${tMin}px,7.5vw,${tMax}px)`, fontWeight:600, fontStyle:"italic", color:C.text1, letterSpacing:"0.04em", marginTop:bp==="xl"?20:16, marginBottom:10, textShadow:`0 2px 32px rgba(91,156,189,.14)`, animationDelay:".1s", textAlign:"center", padding:"0 20px" }}>ImpactTrip</h1>
-
-            {/* Sous-titre */}
-            <p className="fu" style={{ position:"relative", zIndex:10, fontSize:subFs, letterSpacing:"0.30em", color:C.text3, textTransform:"uppercase", marginTop:30, marginBottom:mb, animationDelay:".18s", textAlign:"center" }}>Nos différentes activités !</p>
-
-            {/* Carousel */}
-            <div style={{ position:"relative", width:"100%", zIndex:10, height:carH }}>
-              <button className="chev" onClick={()=>setSelIdx(p=>p-1)}
-                style={{ position:"absolute", left:0, top:0, height:"100%", width:chevW, border:"none", background:`linear-gradient(to right,rgba(240,244,248,.88),transparent)`, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", zIndex:30 }}>
-                <svg width={chevS} height={carH} viewBox="0 0 60 450">
-                  <path d="M 50 25 Q 15 225 50 425" stroke={C.blue2} strokeWidth={bp==="xl"?"7":"5.5"} fill="none" strokeLinecap="round"/>
-                </svg>
-              </button>
-              <button className="chev" onClick={()=>setSelIdx(p=>p+1)}
-                style={{ position:"absolute", right:0, top:0, height:"100%", width:chevW, border:"none", background:`linear-gradient(to left,rgba(240,244,248,.88),transparent)`, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", zIndex:30 }}>
-                <svg width={chevS} height={carH} viewBox="0 0 60 450">
-                  <path d="M 10 25 Q 45 225 10 425" stroke={C.blue2} strokeWidth={bp==="xl"?"7":"5.5"} fill="none" strokeLinecap="round"/>
-                </svg>
-              </button>
-
-              <div style={{ position:"relative", width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center", perspective:"1200px", cursor:dragging?"grabbing":"grab" }}
-                onMouseDown={e=>dragStart(e.clientX)} onMouseMove={e=>dragMove(e.clientX)} onMouseUp={dragEnd} onMouseLeave={dragEnd}
-                onTouchStart={e=>dragStart(e.touches[0].clientX)}
-                onTouchMove={e=>{e.preventDefault();dragMove(e.touches[0].clientX);}}
-                onTouchEnd={dragEnd}
-              >
-                {items.map(item=>(
-                  <SkillCard key={item.key} skill={item} idx={item.originalIdx} offset={item.offset}
-                    onShift={o=>setSelIdx(p=>p+o)} onOpen={setOpenSkill} bp={bp} />
-                ))}
+          ) : (
+            <>
+              {/* Ornement */}
+              <div className="fu" style={{ position:"relative", zIndex:10, marginTop:mt, textAlign:"center" }}>
+                <p style={{ fontSize:bp==="xl"?11:9, letterSpacing:"0.40em", color:C.text3, textTransform:"uppercase", marginBottom:8 }}>✦ &nbsp;Découvrez la Réunion !&nbsp; ✦</p>
+                <div style={{ height:1, width:bp==="xl"?260:200, margin:"0 auto", background:`linear-gradient(90deg,transparent,${C.borderMid},transparent)` }} />
               </div>
-            </div>
 
-            {/* Hint */}
-            <div className="fu" style={{ position:"relative", zIndex:10, textAlign:"center", marginTop:bp==="xl"?0:bp==="xs"?16:28, marginBottom:bp==="xl"?48:bp==="xs"?24:36, animationDelay:".25s" }}>
-              <div style={{ height:1, width:bp==="xl"?180:140, margin:"0 auto 10px", background:`linear-gradient(90deg,transparent,${C.borderMid},transparent)` }} />
-              <p style={{ fontSize:bp==="xl"?10:9, letterSpacing:"0.32em", color:C.text3, textTransform:"uppercase" }}>Glisser pour naviguer</p>
-            </div>
-          </>
+              {/* Titre */}
+              <h1 className="fu" style={{ position:"relative", zIndex:10, fontSize:`clamp(${tMin}px,7.5vw,${tMax}px)`, fontWeight:600, fontStyle:"italic", color:C.text1, letterSpacing:"0.04em", marginTop:bp==="xl"?20:16, marginBottom:10, textShadow:`0 2px 32px rgba(91,156,189,.14)`, animationDelay:".1s", textAlign:"center", padding:"0 20px" }}>ImpactTrip</h1>
+
+              {/* Sous-titre */}
+              <p className="fu" style={{ position:"relative", zIndex:10, fontSize:subFs, letterSpacing:"0.30em", color:C.text3, textTransform:"uppercase", marginTop:30, marginBottom:mb, animationDelay:".18s", textAlign:"center" }}>Nos différentes activités !</p>
+
+              {/* Carousel */}
+              <div style={{ position:"relative", width:"100%", zIndex:10, height:carH }}>
+                <button className="chev" onClick={()=>setSelIdx(p=>p-1)}
+                  style={{ position:"absolute", left:0, top:0, height:"100%", width:chevW, border:"none", background:`linear-gradient(to right,rgba(240,244,248,.88),transparent)`, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", zIndex:30 }}>
+                  <svg width={chevS} height={carH} viewBox="0 0 60 450">
+                    <path d="M 50 25 Q 15 225 50 425" stroke={C.blue2} strokeWidth={bp==="xl"?"7":"5.5"} fill="none" strokeLinecap="round"/>
+                  </svg>
+                </button>
+                <button className="chev" onClick={()=>setSelIdx(p=>p+1)}
+                  style={{ position:"absolute", right:0, top:0, height:"100%", width:chevW, border:"none", background:`linear-gradient(to left,rgba(240,244,248,.88),transparent)`, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", zIndex:30 }}>
+                  <svg width={chevS} height={carH} viewBox="0 0 60 450">
+                    <path d="M 10 25 Q 45 225 10 425" stroke={C.blue2} strokeWidth={bp==="xl"?"7":"5.5"} fill="none" strokeLinecap="round"/>
+                  </svg>
+                </button>
+
+                <div style={{ position:"relative", width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center", perspective:"1200px", cursor:dragging?"grabbing":"grab" }}
+                  onMouseDown={e=>dragStart(e.clientX)} onMouseMove={e=>dragMove(e.clientX)} onMouseUp={dragEnd} onMouseLeave={dragEnd}
+                  onTouchStart={e=>dragStart(e.touches[0].clientX)}
+                  onTouchMove={e=>{e.preventDefault();dragMove(e.touches[0].clientX);}}
+                  onTouchEnd={dragEnd}
+                >
+                  {items.map(item=>(
+                    <SkillCard key={item.key} skill={item} idx={item.originalIdx} offset={item.offset}
+                      onShift={o=>setSelIdx(p=>p+o)} onOpen={setOpenSkill} bp={bp} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Hint */}
+              <div className="fu" style={{ position:"relative", zIndex:10, textAlign:"center", marginTop:bp==="xl"?0:bp==="xs"?16:28, marginBottom:bp==="xl"?48:bp==="xs"?24:36, animationDelay:".25s" }}>
+                <div style={{ height:1, width:bp==="xl"?180:140, margin:"0 auto 10px", background:`linear-gradient(90deg,transparent,${C.borderMid},transparent)` }} />
+                <p style={{ fontSize:bp==="xl"?10:9, letterSpacing:"0.32em", color:C.text3, textTransform:"uppercase" }}>Glisser pour naviguer</p>
+              </div>
+            </>
+          )
         )}
+
+        {page === "fund" && <FundPage bp={bp} total={total} progress={progress} donations={donations} />}
       </div>
     </>
   );
