@@ -393,7 +393,11 @@ function CTABlock({ onExplore, bp }) {
 }
 
 // ─── Main App ─────────────────────────────────────────────────────────────────
-export default function BoucanConnectHome({ onNavigateToActivities }) {
+export default function BoucanConnectHome({
+  onNavigateToLocal,
+  onNavigateToActivities,
+  onNavigateToImpact,
+}) {
   const bp = useBreakpoint();
   const isXs = bp === "xs";
   const isSm = bp === "sm";
@@ -424,7 +428,8 @@ export default function BoucanConnectHome({ onNavigateToActivities }) {
       desc: "Découvrez nos différents acteurs locaux aux 4 coins de l'île: fermiers, guides, artisans. Votre soutien les aide à prospérer et à préserver l'authenticité du territoire.",
       accent: C.blue3,
       accentLight: C.blue1,
-      clickable: false,
+      clickable: true,
+      onClick: onNavigateToLocal,
     },
     {
       icon: "📊",
@@ -432,7 +437,8 @@ export default function BoucanConnectHome({ onNavigateToActivities }) {
       desc: "Voyez en temps réel comment vos choix contribuent. Chaque décision génère un impact mesurable : économies d'énergie, revenus locaux, engagement territorial.",
       accent: C.gold,
       accentLight: "#f0ebd0",
-      clickable: false,
+      clickable: true,
+      onClick: onNavigateToImpact,
     },
     {
       icon: "🎯",
@@ -470,7 +476,6 @@ export default function BoucanConnectHome({ onNavigateToActivities }) {
           overflowX: "hidden",
         }}
       >
-        {/* Barres couleur */}
         <div
           style={{
             position: "absolute",
@@ -493,7 +498,6 @@ export default function BoucanConnectHome({ onNavigateToActivities }) {
           }}
         />
 
-        {/* Blobs */}
         <div
           style={{
             position: "absolute",
@@ -519,10 +523,8 @@ export default function BoucanConnectHome({ onNavigateToActivities }) {
           }}
         />
 
-        {/* Hero Section */}
         <HeroBlock bp={bp} />
 
-        {/* Story Section */}
         <div
           style={{
             position: "relative",
@@ -564,7 +566,6 @@ export default function BoucanConnectHome({ onNavigateToActivities }) {
           </div>
         </div>
 
-        {/* Divider */}
         <div
           className="fu"
           style={{
@@ -578,7 +579,6 @@ export default function BoucanConnectHome({ onNavigateToActivities }) {
           }}
         />
 
-        {/* CTA Section */}
         <div
           style={{
             position: "relative",
