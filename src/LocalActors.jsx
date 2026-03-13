@@ -19,6 +19,12 @@ const C = {
   shadow: "rgba(90,156,189,0.14)",
 };
 
+const DEFAULT_ACTOR_IMAGE = "/img/marché.jpg";
+const ACTOR_IMAGE_BY_NAME = {
+  "Sophie et Jean-Luc": "/img/producteur4.jpg",
+  "Francine Piton": "/img/producteur6.jpg",
+};
+
 const ACTEURS_LOCAUX = [
   {
     id: 1,
@@ -69,7 +75,7 @@ const ACTEURS_LOCAUX = [
     id: 4,
     nom: "Sophie et Jean-Luc",
     titre: "Artisans Textile - Créations Locales",
-    image: "/img/producteur4.jpg",
+    image: ACTOR_IMAGE_BY_NAME["Sophie et Jean-Luc"],
     histoire:
       "Couple passionné par l'artisanat textile. Ils créent des pièces uniques inspirées par la culture créole, utilisant des techniques traditionnelles et des matières durables.",
     description:
@@ -99,7 +105,7 @@ const ACTEURS_LOCAUX = [
     id: 6,
     nom: "Francine Piton",
     titre: "Pâtisserie Créole - Gâteaux Traditionnels",
-    image: "/img/producteur6.jpg",
+    image: ACTOR_IMAGE_BY_NAME["Francine Piton"],
     histoire:
       "Francine perpétue les recettes de sa grand-mère. Depuis 30 ans, elle prépare chaque jour les meilleurs gâteaux créoles de la région, sans jamais compromettre sur la qualité.",
     description:
@@ -180,6 +186,16 @@ function FicheActeur({ acteur, bp }) {
             height: "100%",
             objectFit: "cover",
             transition: "transform .3s ease",
+          }}
+          onError={(e) => {
+            const img = e.currentTarget;
+            const fallbackByName = ACTOR_IMAGE_BY_NAME[acteur.nom] || DEFAULT_ACTOR_IMAGE;
+            if (img.src.endsWith(fallbackByName)) {
+              img.onerror = null;
+              img.src = DEFAULT_ACTOR_IMAGE;
+              return;
+            }
+            img.src = fallbackByName;
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "scale(1.05)";

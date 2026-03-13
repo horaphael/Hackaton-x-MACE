@@ -90,9 +90,9 @@ export default function TopNav({
         <button style={navPill(currentPage === "acteurs")} onClick={goActeurs}>
           Acteurs
         </button>
-        <button style={navPill(currentPage === "impact")} onClick={goImpact}>
+        {/* <button style={navPill(currentPage === "impact")} onClick={goImpact}>
           Mon Impact
-        </button>
+        </button> */}
         <button style={navPill(currentPage === "fund")} onClick={goFund}>
           Cagnotte
         </button>

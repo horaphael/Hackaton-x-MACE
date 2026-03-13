@@ -127,13 +127,13 @@ function AppWrapper() {
           <LocalActors onBackToHome={goHome} onAddDonation={addDonation} />
         )}
 
-        {currentPage === "impact" && (
+        {/* {currentPage === "impact" && (
           <MyImpact
             onBackToHome={goHome}
             donations={donations}
             selectedActivities={selectedActivities}
           />
-        )}
+        )} */}
 
         {currentPage === "fund" && (
           <FundPage

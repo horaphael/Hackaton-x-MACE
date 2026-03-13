@@ -36,11 +36,40 @@ const SKILLS = [
 const AMOUNTS = [2, 5, 10, 20];
 
 const GOAL = 600;
+const DONATIONS_STORAGE_KEY = "impacttrip_donations_v1";
 const INITIAL_DONATIONS = [
   { id: 1, skillId: "plongée", skillName: "plongée", amount: 25, at: "2026-03-11T14:10:00.000Z" },
   { id: 2, skillId: "Canyoning", skillName: "Canyoning", amount: 18, at: "2026-03-12T09:30:00.000Z" },
   { id: 3, skillId: "Commerce artisanal", skillName: "Commerce artisanal", amount: 30, at: "2026-03-12T11:05:00.000Z" },
 ];
+
+function normalizeDonations(list) {
+  if (!Array.isArray(list)) return [];
+  return list
+    .map((item) => {
+      const amount = Number(item?.amount);
+      return {
+        id: item?.id ?? Date.now(),
+        skillId: item?.skillId ?? "unknown",
+        skillName: item?.skillName ?? "Activité",
+        amount,
+        at: item?.at ?? new Date().toISOString(),
+      };
+    })
+    .filter((item) => Number.isFinite(item.amount) && item.amount > 0);
+}
+
+function getInitialDonations() {
+  if (typeof window === "undefined") return INITIAL_DONATIONS;
+  try {
+    const raw = window.localStorage.getItem(DONATIONS_STORAGE_KEY);
+    if (!raw) return INITIAL_DONATIONS;
+    const parsed = normalizeDonations(JSON.parse(raw));
+    return parsed.length ? parsed : INITIAL_DONATIONS;
+  } catch {
+    return INITIAL_DONATIONS;
+  }
+}
 
 function euros(value) {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
@@ -108,8 +137,11 @@ function TipBlock({ skill, bp, onDonate = () => {} }) {
   const [selected, setSelected] = useState(5);
   const [custom,   setCustom]   = useState("");
   const [done,     setDone]     = useState(false);
+  const [submittedAmount, setSubmittedAmount] = useState(null);
 
   const finalAmount = custom !== "" ? parseFloat(custom) || 0 : selected;
+  const validAmount = Number(finalAmount);
+  const canDonate = Number.isFinite(validAmount) && validAmount > 0;
   const isXs = bp === "xs";
   const pad  = isXs ? "24px 20px 28px" : bp === "xl" ? "44px 44px 48px" : "32px 32px 36px";
   const h3   = bp === "xl" ? 30 : bp === "lg" ? 26 : bp === "xs" ? 20 : 24;
@@ -120,10 +152,10 @@ function TipBlock({ skill, bp, onDonate = () => {} }) {
         <div style={{ textAlign:"center", padding:"24px 0" }}>
           <div style={{ width:72, height:72, borderRadius:"50%", margin:"0 auto 20px", background:`linear-gradient(135deg,${C.green1},${C.bgAlt})`, border:`1px solid ${C.green2}44`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:32 }}>🌿</div>
           <p style={{ fontSize:10, letterSpacing:"0.22em", color:C.text3, textTransform:"uppercase", marginBottom:8 }}>Merci infiniment</p>
-          <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:h3+2, fontWeight:600, fontStyle:"italic", color:C.text1, marginBottom:12 }}>Don de {finalAmount} € reçu</h3>
+          <h3 style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:h3+2, fontWeight:600, fontStyle:"italic", color:C.text1, marginBottom:12 }}>Don de {submittedAmount ?? validAmount} € reçu</h3>
           <p style={{ fontFamily:"'Cormorant Garamond',serif", fontSize:bp==="xl"?17:15, color:C.text2, lineHeight:1.7, maxWidth:400, margin:"0 auto 28px" }}>Votre générosité contribue directement à notre mission. Chaque geste compte.</p>
           <div style={{ height:1, background:`linear-gradient(90deg,transparent,${C.borderMid},transparent)`, marginBottom:24 }} />
-          <button onClick={() => { setDone(false); setCustom(""); setSelected(5); }}
+          <button onClick={() => { setDone(false); setSubmittedAmount(null); setCustom(""); setSelected(5); }}
             style={{ padding:"10px 28px", borderRadius:10, border:`1.5px solid ${C.borderMid}`, background:"transparent", color:C.text2, fontFamily:"'Cormorant Garamond',serif", fontSize:14, letterSpacing:"0.1em", cursor:"pointer" }}
             onMouseEnter={e=>e.currentTarget.style.borderColor=C.green3}
             onMouseLeave={e=>e.currentTarget.style.borderColor=C.borderMid}
@@ -164,11 +196,16 @@ function TipBlock({ skill, bp, onDonate = () => {} }) {
 
           <div style={{ height:1, background:`linear-gradient(90deg,transparent,${C.borderLight},transparent)`, marginBottom:bp==="xl"?28:22 }} />
 
-          <button onClick={() => { if (finalAmount > 0) { onDonate(skill, finalAmount); setDone(true); setCustom(""); setSelected(5); } }} disabled={finalAmount<=0}
-            style={{ width:"100%", padding:bp==="xl"?"18px 0":"15px 0", borderRadius:14, border:"none", background:finalAmount>0?`linear-gradient(135deg,${skill.accentLight},${skill.accent})`:C.borderLight, color:finalAmount>0?"#fff":C.text3, fontFamily:"'Cormorant Garamond',serif", fontSize:bp==="xl"?19:16, letterSpacing:"0.16em", cursor:finalAmount>0?"pointer":"not-allowed", transition:"all .2s", boxShadow:finalAmount>0?`0 6px 24px ${skill.accent}33`:"none" }}
-            onMouseEnter={e=>{ if(finalAmount>0) e.currentTarget.style.boxShadow=`0 10px 36px ${skill.accent}55`; }}
-            onMouseLeave={e=>{ if(finalAmount>0) e.currentTarget.style.boxShadow=`0 6px 24px ${skill.accent}33`; }}
-          >{finalAmount>0?`Donner ${finalAmount} €`:"Choisir un montant"}</button>
+          <button onClick={() => {
+            if (!canDonate) return;
+            onDonate(skill, validAmount);
+            setSubmittedAmount(validAmount);
+            setDone(true);
+          }} disabled={!canDonate}
+            style={{ width:"100%", padding:bp==="xl"?"18px 0":"15px 0", borderRadius:14, border:"none", background:canDonate?`linear-gradient(135deg,${skill.accentLight},${skill.accent})`:C.borderLight, color:canDonate?"#fff":C.text3, fontFamily:"'Cormorant Garamond',serif", fontSize:bp==="xl"?19:16, letterSpacing:"0.16em", cursor:canDonate?"pointer":"not-allowed", transition:"all .2s", boxShadow:canDonate?`0 6px 24px ${skill.accent}33`:"none" }}
+            onMouseEnter={e=>{ if(canDonate) e.currentTarget.style.boxShadow=`0 10px 36px ${skill.accent}55`; }}
+            onMouseLeave={e=>{ if(canDonate) e.currentTarget.style.boxShadow=`0 6px 24px ${skill.accent}33`; }}
+          >{canDonate?`Donner ${validAmount} €`:"Choisir un montant"}</button>
 
           <p style={{ textAlign:"center", fontFamily:"'Cormorant Garamond',serif", fontSize:11, color:C.text3, marginTop:16, letterSpacing:"0.1em" }}>🔒 &nbsp; Paiement sécurisé · 100% reversé à l'association</p>
         </>
@@ -301,6 +338,9 @@ function TopNav({ currentPage, total, goHome, goActivities, goFund }) {
     <div style={{ position: "relative", zIndex: 10, width: "min(1180px, calc(100% - 32px))", margin: "0 auto", padding: "30px 0 0", display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
       <button onClick={goHome} style={{ background: "transparent", border: "none", padding: 0, fontFamily: "'Cormorant Garamond',serif", fontSize: 32, fontStyle: "italic", letterSpacing: "0.08em", color: C.text1, cursor: "pointer" }}>ImpactTrip</button>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ borderRadius: 999, border: `1px solid ${C.borderLight}`, background: C.bgCard, color: C.green3, fontWeight: 700, letterSpacing: "0.05em", padding: "10px 14px", fontSize: 14 }}>
+          Cagnotte: {euros(total)}
+        </div>
         <button style={navPill(currentPage === "home")} onClick={goHome}>Accueil</button>
         <button style={navPill(currentPage === "activities")} onClick={goActivities}>Activites</button>
         <button style={navPill(currentPage === "fund")} onClick={goFund}>Cagnotte</button>
@@ -378,7 +418,11 @@ export default function App() {
   const [dragX,     setDragX]     = useState(0);
   const [openSkill, setOpenSkill] = useState(null);
   const [page, setPage]           = useState("home");
-  const [donations, setDonations] = useState(INITIAL_DONATIONS);
+  const [donations, setDonations] = useState(getInitialDonations);
+
+  useEffect(() => {
+    window.localStorage.setItem(DONATIONS_STORAGE_KEY, JSON.stringify(donations));
+  }, [donations]);
 
   const dragStart = x => { setDragging(true); setDragX(x); };
   const dragMove  = x => { if(!dragging) return; if(Math.abs(dragX-x)>=60){ setSelIdx(p=>dragX-x>0?p+1:p-1); setDragging(false); }};
@@ -399,17 +443,19 @@ export default function App() {
     return{...SKILLS[di],originalIdx:di,offset,key:selIdx+offset};
   });
 
-  const total = useMemo(() => donations.reduce((sum, donation) => sum + donation.amount, 0), [donations]);
+  const total = useMemo(() => donations.reduce((sum, donation) => sum + Number(donation.amount || 0), 0), [donations]);
   const progress = Math.min(100, Math.round((total / GOAL) * 100));
 
   const handleDonate = (skill, amount) => {
+    const normalizedAmount = Number(amount);
+    if (!Number.isFinite(normalizedAmount) || normalizedAmount <= 0) return;
     setDonations((current) => [
       ...current,
       {
-        id: Date.now(),
+        id: `${Date.now()}-${Math.floor(Math.random() * 100000)}`,
         skillId: skill.id,
         skillName: skill.name,
-        amount,
+        amount: normalizedAmount,
         at: new Date().toISOString(),
       },
     ]);
