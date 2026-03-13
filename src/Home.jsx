@@ -87,7 +87,7 @@ function HeroBlock({ bp }) {
             marginBottom: 12,
           }}
         >
-          ✦ &nbsp;Bienvenue à&nbsp; ✦
+          ✦ &nbsp;Bienvenue sur&nbsp; ✦
         </p>
         <div
           style={{
@@ -115,7 +115,7 @@ function HeroBlock({ bp }) {
           lineHeight: 1.2,
         }}
       >
-        BoucanConnect
+        ImpactTrip
       </h1>
 
       <p
